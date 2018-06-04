@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <title>CSV</title>
+  <style>
+    .circle {
+      fill: #ccc;
+      stroke: #fff;
+      stroke-width: 1px;
+    }
+
+    </style>
+</head>
+<body>
+  <script>
+
+  var margin = {top: 200, right: 100, bottom: 100, left: 100},
+      width = 800,
+      height = 800;
+
+
+
+  d3.csv("/data/test9.csv", function(error, links) {
+
+var nodes=[];
+var n=0;
+links.forEach(function(link){
+
+    //console.log(link.source);
+  link.source = nodes[link.source] ||
+    (nodes[n]= {name: link.source});
+    n=n+1;
+});
+
+    var nodes1 = new Array(nodes.length);
+    for (var i=0; i<nodes1.length;i++){
+      nodes1[i] = nodes[i].name;
+    }
+
+    function uniq(a) {
+    var prims = {"boolean":{}, "number":{}, "string":{}}, objs = [];
+
+    return a.filter(function(item) {
+        var type = typeof item;
+        if(type in prims)
+            return prims[type].hasOwnProperty(item) ? false : (prims[type][item] = true);
+        else
+            return objs.indexOf(item) >= 0 ? false : objs.push(item);
+    });
+}
+//console.log(links)
+
+    var nodes2 = uniq(nodes1);
+
+    var numrows=nodes2.length, numcols=nodes2.length;
+    var matrix = new Array(numrows);
+    for (var i = 0; i < numrows; i++) {
+      matrix[i] = new Array(numcols);};
+      //console.log(links);
+
+    for (var i = 0; i < numrows; i++) {
+      for (var j = 0; j < nodes1.length; j++) {
+        var temp1 = nodes2[i];
+        //matrix[i][j]=0;
+        matrix[i][i]=-1;
+        //var temp2 = nodes2[j];
+        //var temp3 = links.indexOf(temp2);
+        if (links[j].source.name == temp1){
+          //console.log(temp1+" "+links[j].target.name)
+          var l = links[j].target;
+          var k = nodes2.indexOf(l);
+          //console.log(i +" "+ k + " " +temp1+ " "+l);
+          try{
+            matrix[k][i]=1;}
+          catch(TypeError){
+            var name = false;};
+        };
+      };
+    };
+    //console.log(matrix);
+
+
+    var x = d3.scale.ordinal()
+        .domain(d3.range(numcols))
+        .rangeBands([0, width]);
+
+    var y = d3.scale.ordinal()
+        .domain(d3.range(numrows))
+        .rangeBands([0, height]);
+
+
+var rowLabels = new Array(numrows);
+for (var i = 0; i < numrows; i++) {
+  rowLabels[i] = nodes2[i];
+}
+
+var columnLabels = new Array(numrows);
+for (var i = 0; i < numcols; i++) {
+  str = nodes2[i];
+  str = str.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\core\\","");
+  columnLabels[i] = (i) + "  " +str;
+
+}
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("margin-left", -margin.left + "px")
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height).style("fill", "white");
+
+    var colorMap = d3.scale.linear()
+        .domain([-1, 0, 1])
+        .range(["grey", "white", "blue"]);
+        //.range(["red", "black", "green"]);
+        //.range(["brown", "#ddd", "darkgreen"]);
+
+    var row = svg.selectAll(".row")
+        .data(matrix)
+      .enter().append("g")
+        .attr("class", "row")
+        .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; });
+
+    row.selectAll(".cell")
+        .data(function(d) { return d; })
+      .enter().append("rect")
+        .attr("class", "cell")
+        .attr("x", function(d, i) { return x(i); })
+        .attr("width", x.rangeBand())
+        .attr("height", y.rangeBand())
+        .style("stroke-width", 0.3)
+        .style("stroke","white");
+
+    row.append("line")
+        .attr("x2", width);
+
+    row.append("text")
+        .attr("x", 0)
+        .attr("y", y.rangeBand() / 2)
+        .attr("dy", ".32em")
+        .attr("text-anchor", "end")
+        .text(function(d, i) { return i; });
+
+    var column = svg.selectAll(".column")
+        .data(columnLabels)
+      .enter().append("g")
+        .attr("class", "column")
+        .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
+    column.append("line")
+        .attr("x1", -width);
+
+    column.append("text")
+        .attr("x", 6)
+        .attr("y", y.rangeBand() / 2)
+        .attr("dy", ".32em")
+        .attr("text-anchor", "start")
+        .text(function(d, i) { return d; });
+
+    row.selectAll(".cell")
+        .data(function(d, i) { return matrix[i]; })
+        .style("fill", colorMap);
+
+});
+
+  </script>
+</body>
+</html>
