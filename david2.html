@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<svg width="960" height="500"></svg>
+<body>
+  <style>
+  path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+</style>
+  <div>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+Owner 1: <input type="text" id="owner1" value="Apache">
+Name  1: <input type="text" id="name1" value="Mahout"><br>
+Owner 2: <input type="text" id="owner2" value="NGINX">
+Name  2: <input type="text" id="name2" value="NGINX"><br>
+<button onclick='updateData()'>Change Repos</button>
+</div>
+<script>
+
+
+
+var  margin = {top: 20, right: 20, bottom: 30, left: 50},
+width = 600 - margin.left - margin.right,
+height = 270 - margin.top - margin.bottom;
+
+
+var parseTime = d3.time.format("%s").parse;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.time.scale()
+    .range([height, 0]);
+
+
+    var xAxis = d3.svg.axis().scale(x)
+      .orient("bottom").ticks(5);
+
+  var yAxis = d3.svg.axis().scale(y)
+      .orient("left").ticks(5);
+
+      var svg = d3.select("body")
+          .append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+              .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+                    var line1 = d3.svg.line()
+                        .x(function(d) { return x(d[0]); })
+                        .y(function(d) { return y(d[1]/codef1); });
+
+                    var line2 = d3.svg.line()
+                        .x(function(d) { return x(d[0]); })
+                        .y(function(d) { return y(d[1]/codef2);});
+
+var n=0;
+var n=0,code1,comment1,blank1,code2,comment2,blank2,codef1,codef2,count1=0,count2=0;
+
+
+function Change() {
+    var owner1 = document.getElementById("owner1").value;
+    var name1 = document.getElementById("name1").value;
+    var owner2 = document.getElementById("owner2").value;
+    var name2 = document.getElementById("name2").value;
+    return [owner1, name1, owner2, name2];
+  }
+
+
+var owner1 = Change()[0];
+var owner2 = Change()[2];
+var name1 = Change()[1];
+var name2 = Change()[2];
+
+d3.json("https://api.github.com/repos/"+owner1+"/"+name1+"/stats/code_frequency", function(error, links) {
+  if (error) throw error;
+  d3.json("https://api.github.com/repos/"+owner2+"/"+name2+"/stats/code_frequency", function (error,links1){
+    if (error) throw error;
+    console.log(links);
+    console.log(links1)
+    d3.json("https://www.openhub.net/p/"+name1+"/analyses/latest/lines_of_code",function(error,loc1){
+      loc1.series[0].data.forEach(function(d){
+        code1 = d[1];
+        count1 = count1 +1;
+    })
+    loc1.series[1].data.forEach(function(d){
+      comment1 = d[1];
+    })
+
+    loc1.series[2].data.forEach(function(d){
+      blank1 = d[1];
+    })
+    function getCode1(){
+      //codef1 = code1+comment1+blank1;
+      return code1;
+    }
+
+    d3.json("https://www.openhub.net/p/"+name2+"/analyses/latest/lines_of_code",function(error,loc1){
+      loc1.series[0].data.forEach(function(d){
+        code2 = d[1];
+        count2 = count2 +1;
+    })
+    loc1.series[1].data.forEach(function(d){
+      comment2 = d[1];
+    })
+
+    loc1.series[2].data.forEach(function(d){
+      blank2 = d[1];
+    })
+    function getCode2(){
+      //codef2 = code2-comment2-blank2;
+      return code2;
+    }
+
+    codef1 = getCode1();
+    codef2=getCode2();
+
+
+    if (count1>count2){
+  x.domain(d3.extent(links, function(d) { return d[0]; }));
+}
+else{
+    x.domain(d3.extent(links1, function(d) { return d[0]; }));
+}
+if(codef1<codef2){
+  y.domain(d3.extent(links, function(d) { return d[1]/codef1; }));
+}
+else {
+  y.domain(d3.extent(links1, function(d) { return d[1]/codef2; }));
+}
+
+  svg.append("path").datum(links).attr("d",line1).attr("class","line");
+
+  svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      // Add the Y Axis
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis);
+
+  });});  });});
+
+
+function updateData(){
+  var owner1 = Change()[0];
+  var owner2 = Change()[2];
+  var name1 = Change()[1];
+  var name2 = Change()[2];
+  d3.json("https://api.github.com/repos/"+owner1+"/"+name1+"/stats/code_frequency", function(error, links) {
+    if (error) throw error;
+    d3.json("https://api.github.com/repos/"+owner2+"/"+name2+"/stats/code_frequency", function (error,links1){
+      if (error) throw error;
+      console.log(name1);
+      console.log(links1)
+      d3.json("https://www.openhub.net/p/"+name1+"/analyses/latest/lines_of_code",function(error,loc1){
+        loc1.series[0].data.forEach(function(d){
+          code1 = d[1];
+          count1 = count1 +1;
+      })
+      loc1.series[1].data.forEach(function(d){
+        comment1 = d[1];
+      })
+
+      loc1.series[2].data.forEach(function(d){
+        blank1 = d[1];
+      })
+      function getCode1(){
+        //codef1 = code1+comment1+blank1;
+        return code1;
+      }
+
+      d3.json("https://www.openhub.net/p/"+name2+"/analyses/latest/lines_of_code",function(error,loc1){
+        loc1.series[0].data.forEach(function(d){
+          code2 = d[1];
+          count2 = count2 +1;
+      })
+      loc1.series[1].data.forEach(function(d){
+        comment2 = d[1];
+      })
+
+      loc1.series[2].data.forEach(function(d){
+        blank2 = d[1];
+      })
+      function getCode2(){
+        //codef2 = code2-comment2-blank2;
+        return code2;
+      }
+
+      codef1 = getCode1();
+      codef2=getCode2();
+
+
+      if (count1>count2){
+    x.domain(d3.extent(links, function(d) { return d[0]; }));
+  }
+  else{
+      x.domain(d3.extent(links1, function(d) { return d[0]; }));
+  }
+  if(codef1<codef2){
+    y.domain(d3.extent(links, function(d) { return d[1]/codef1; }));
+  }
+  else {
+    y.domain(d3.extent(links1, function(d) { return d[1]/codef2; }));
+  }
+
+  var svg = d3.select("body").transition();
+
+    svg.select(".line").duration(750).attr("d",line1(links));
+
+    svg.select(".x.axis").duration(750)
+            .call(xAxis);
+
+        // Add the Y Axis
+        svg.select(".y.axis").duration(750)
+            .call(yAxis);
+
+    });});  });});
+}
+
+
+</script>
+</body>
