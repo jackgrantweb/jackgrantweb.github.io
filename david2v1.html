@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<svg width="960" height="500"></svg>
+<body>
+  <div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+Owner 1: <input type="text" id="owner1" value="Apache">
+Name  1: <input type="text" id="name1" value="Mahout"><br>
+Owner 2: <input type="text" id="owner2" value="Apache">
+Name  2: <input type="text" id="name2" value="Cassandra"><br>
+<button onclick='updateData()'>Change Repos</button>
+</div>
+<script>
+
+
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var parseTime = d3.timeParse("%s");
+
+var x = d3.scaleTime()
+    .rangeRound([0, width]);
+
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+
+var line1 = d3.line()
+    .x(function(d) { return x(d[0]); })
+    .y(function(d) { return y(d[1]/codef1); });
+
+var line2 = d3.line()
+    .x(function(d) { return x(d[0]); })
+    .y(function(d) { return y(d[1]/codef2);});
+
+    var line3 = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[1]); });
+
+    var line4 = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[1]);});
+
+var n=0;
+
+function Change() {
+    var owner1 = document.getElementById("owner1").value;
+    var name1 = document.getElementById("name1").value;
+    var owner2 = document.getElementById("owner2").value;
+    var name2 = document.getElementById("name2").value;
+    return [owner1, name1, owner2, name2];
+  }
+
+var n=0,code1,comment1,blank1,code2,comment2,blank2,codef1,codef2,count1=0,count2=0;
+
+var owner1 = Change()[0];
+var name1 = Change()[1];
+var owner2 = Change()[2];
+var name2 = Change()[3];
+
+d3.json("https://api.github.com/repos/"+owner1+"/"+name1+"/stats/code_frequency", function(error, links) {
+  if (error) throw error;
+  d3.json("https://api.github.com/repos/"+owner2+"/"+name2+"/stats/code_frequency", function (error,links1){
+    if (error) throw error;
+    d3.json("https://www.openhub.net/p/"+name1+"/analyses/latest/lines_of_code",function(error,loc1){
+      loc1.series[0].data.forEach(function(d){
+        code1 = d[1];
+    })
+    loc1.series[1].data.forEach(function(d){
+      comment1 = d[1];
+  })
+  loc1.series[2].data.forEach(function(d){
+    blank1 = d[1];
+})
+    function getCode1(){
+      codef1 = code1+comment1+blank1;
+      return codef1;
+    }
+
+    d3.json("https://www.openhub.net/p/"+name2+"/analyses/latest/lines_of_code",function(error,loc1){
+      loc1.series[0].data.forEach(function(d){
+        code2 = d[1];
+    })
+    loc1.series[1].data.forEach(function(d){
+      comment2 = d[1];
+  })
+  loc1.series[2].data.forEach(function(d){
+    blank2 = d[1];
+})
+    function getCode2(){
+      codef2 = code2+comment2+blank2;
+      return codef2;
+    }
+
+    codef1 = getCode1();
+    codef2=getCode2();
+
+    links.forEach(function(d){
+      count1 = count1 +1;
+    })
+    links1.forEach(function(d){
+      count2 = count2 +1;
+    })
+
+    for (var d=0; d<links.length;d++){
+      if (links[d][1]>20000){
+        links[d][1]=100;
+      }
+    }
+    for (var e=0; e<links1.length;e++){
+      if (links1[e][1]>20000){
+        links1[e][1]=100;
+      }
+    }
+
+    if (count1>count2){
+  x.domain(d3.extent(links, function(d) { return d[0]; }));
+}
+else{
+    x.domain(d3.extent(links1, function(d) { return d[0]; }));
+}
+if(codef1<codef2){
+  y.domain(d3.extent(links, function(d) { return d[1]/codef1; }));
+}
+else {
+  y.domain(d3.extent(links1, function(d) { return d[1]/codef2; }));
+}
+
+  g.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x))
+    .select(".domain")
+      .remove();
+
+  g.append("g")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Changes (LOC per change / total LOC)");
+
+  g.append("path")
+      .datum(links)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-width", 1.5)
+      .attr("d", line1);
+
+    g.append("path")
+        .datum(links1)
+        .attr("fill", "none")
+        .attr("stroke", "pink")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 1.5)
+        .attr("d", line2);
+
+      count1=0,count2=0,code2=0,code1=0,codef1=0,codef2=0;
+  });});  });});
+
+function updateData(){
+  d3.select("g").remove();
+  var owner1 = Change()[0];
+  var name1 = Change()[1];
+  var owner2 = Change()[2];
+  var name2 = Change()[3];
+  g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  d3.json("https://api.github.com/repos/"+owner1+"/"+name1+"/stats/code_frequency", function(error, links) {
+    if (error) throw error;
+    d3.json("https://api.github.com/repos/"+owner2+"/"+name2+"/stats/code_frequency", function (error,links1){
+      if (error) throw error;
+      //console.log(links);
+      //console.log(links1)
+      d3.json("https://www.openhub.net/p/"+name1+"/analyses/latest/lines_of_code",function(error,loc1){
+        loc1.series[0].data.forEach(function(d){
+          code1 = d[1];
+      })
+      loc1.series[1].data.forEach(function(d){
+        comment1 = d[1];
+    })
+    loc1.series[2].data.forEach(function(d){
+      blank1 = d[1];
+  })
+      function getCode1(){
+        codef1 = code1+comment1+blank1;
+        return codef1;
+      }
+
+      d3.json("https://www.openhub.net/p/"+name2+"/analyses/latest/lines_of_code",function(error,loc1){
+        loc1.series[0].data.forEach(function(d){
+          code2 = d[1];
+      })
+      loc1.series[1].data.forEach(function(d){
+        comment2 = d[1];
+    })
+    loc1.series[2].data.forEach(function(d){
+      blank2 = d[1];
+  })
+      function getCode2(){
+        codef2 = code2+comment2+blank2;
+        return codef2;
+      }
+      codef1 = getCode1();
+      codef2=getCode2();
+      console.log("code1:"+codef1+" code2:"+codef2)
+
+      links.forEach(function(d){
+        count1 = count1 +1;
+      })
+      links1.forEach(function(d){
+        count2 = count2 +1;
+      })
+
+      for (var d=0; d<links.length;d++){
+        if (links[d][1]>10000){
+          links[d][1]=100;
+        }
+      }
+      for (var e=0; e<links1.length;e++){
+        if (links1[e][1]>10000){
+          links1[e][1]=100;
+        }
+      }
+
+      if (count1>count2){
+    x.domain(d3.extent(links, function(d) { return d[0]; }));
+  }
+  else{
+      x.domain(d3.extent(links1, function(d) { return d[0]; }));
+  }
+  if(codef1<codef2){
+    y.domain(d3.extent(links, function(d) { return d[1]; }));
+  }
+  else {
+    y.domain(d3.extent(links1, function(d) { return d[1]; }));
+  }
+
+    g.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+      .select(".domain")
+        .remove();
+
+    g.append("g")
+        .call(d3.axisLeft(y))
+      .append("text")
+        .attr("fill", "#000")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+        .text("Changes (LOC)");
+
+    g.append("path")
+        .datum(links)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 1.5)
+        .attr("d", line3);
+
+      g.append("path")
+          .datum(links1)
+          .attr("fill", "none")
+          .attr("stroke", "pink")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-width", 1.5)
+          .attr("d", line4);
+count1=0,count2=0,code2=0,code1=0,codef1=0,codef2=0;
+    });});  });});
+}
+
+
+</script>
+<p> The blue color is repository 1. Pink is repository 2. You might need the CORS browser extension to see this because of one of the APIs, but you can come down before you leave if you want to see.<br>
+  If the alert comes up, either the API could not find the data from a spelling difference or the external
+  <a href="https://www.openhub.net/p/nginx/analyses/latest/lines_of_code">website</a> does not have the data available for that repository.<br><br>
+  The data is standardized, in order to compare 2 different projects. For each change, the number of lines changed (added only here) is divided by the current total number of lines. In the future, the data can be synced up based on how many lines were present that week, as well as including the deleting data. Also, the data can be transformed in an animated way, which is very hard for 2 but I got it working with one <a href ="jackgrant.me/david2.html">here</a>, just enter Cassandra into Name 1.<br><br>
+  I just wanted to show you the starting point I have been working on for the past 4 hours. I think this will help the comparison between different software repositories. Let me know if you have any questions or improvements.
+</p>
+</body>

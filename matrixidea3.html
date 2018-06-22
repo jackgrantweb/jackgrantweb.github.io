@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <title>CSV</title>
+  <style>
+  .circle {
+    fill: #ccc;
+    stroke: #fff;
+    stroke-width: 1px;
+  }
+  .text {
+    font-family: "Courier New";
+    font-size: 12px;
+  }
+  div.fixed {
+  position: fixed;
+  width: 100%;
+  bottom: 2px;
+}
+
+.background {
+fill: #fff;
+}
+
+line {
+stroke: #808080;
+stroke-width: 0.3
+}
+
+text.active {
+fill: red;
+}
+
+    </style>
+</head>
+<body>
+  <p>Order: <select id="order">
+    <option value="name">by Name</option>
+    <option value="group">by Cluster</option>
+  </select>
+  <script>
+
+
+  var margin = {top: 200, right: 100, bottom: 100, left: 200},
+      width = 800,
+      height = 800;
+
+
+
+
+
+
+        var colorMap = d3.scale.linear()
+            .domain([-1, 0, 1])
+            .range(["grey", "white", "lightblue"]);
+
+      var tooltip = d3.select("body").append("div")
+          .style("position","absolute")
+          .style("background","#f4f4f4")
+          .style("padding","5 15px")
+          .style("border","1px #333 solid")
+          .style("opacity","0");
+
+
+
+  d3.csv("/data/test2.csv", function(error, links) {
+    d3.csv("/data/test21.csv",function(error, links1){
+    initMat(6);
+function initMat(folder){
+  var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("margin-left", -margin.left +10 + "px")
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  //console.log(links)
+var dnodes=[];
+var nodes = [];
+var n=0;
+var m=0;
+
+
+links.forEach(function(link){
+//  if(link == "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\core\\*"){
+    //console.log(link.source);
+//  if (link.source.name.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\core\\/i) ==0){
+try{
+    //link.source = nodes[link.source] ||
+    //(nodes[n]= {name: link.source});
+    //n=n+1;//}
+    if (folder ==6){
+    if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\core\\/i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }
+  }
+    else if (folder ==5){
+    if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\os\\/i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }}
+    else if (folder ==4){
+    if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\event\\/i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }}
+    else if (folder ==3){
+    if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\http\\/i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }}
+    else if (folder ==2){
+    if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\mail\\/i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }}
+    else if (folder ==1){
+    if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\stream\\/i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }}
+    else if (folder ==0){
+    if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\misc\\/i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }}}catch(TypeError){name=false};
+});
+ var s=0;
+
+links1.forEach(function(link){
+  //console.log(link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.core./i))
+//  if(link == "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\core\\*"){
+    //console.log(link.source);
+//  if (link.source.name.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\core\\/i) ==0){
+try{
+    //link.source = nodes[link.source] ||
+    //(nodes[n]= {name: link.source});
+    //n=n+1;//}
+    if (folder ==6){
+    if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.core./i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (nodes[s]=  link.order);
+      s=s+1;
+    }
+  }
+    else if (folder ==5){
+    if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.os./i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (nodes[s]=  link.order);
+      s=s+1;
+    }}
+    else if (folder ==4){
+    if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.event./i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (nodes[s]=  link.order);
+      s=s+1;
+    }}
+    else if (folder ==3){
+    if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.http./i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (nodes[s]=  link.order);
+      s=s+1;
+    }}
+    else if (folder ==2){
+    if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.mail./i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (nodes[s]=  link.order);
+      s=s+1;
+    }}
+    else if (folder ==1){
+    if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.stream./i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (nodes[s]=  link.order);
+      s=s+1;
+    }}
+    else if (folder ==0){
+    if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.misc./i) ==0 ){
+      //link.source = nodes[link.source] ||
+      (nodes[s]=  link.order);
+      s=s+1;
+    }}}catch(TypeError){name=false};
+});
+
+if (folder ==6){
+  add1("stream");
+  add1("os");
+  add1("event");
+  add1("http");
+  add1("mail");
+}
+else if (folder ==5){
+  add1("core");
+  add1("stream");
+  add1("event");
+  add1("http");
+  add1("mail");
+}
+else if (folder ==4){
+  add1("core");
+  add1("os");
+  add1("stream");
+  add1("http");
+  add1("mail");
+}
+else if (folder ==3){
+  add1("core");
+  add1("os");
+  add1("event");
+  add1("stream");
+  add1("mail");
+}
+else if (folder ==2){
+  add1("core");
+  add1("os");
+  add1("event");
+  add1("http");
+  add1("stream");
+}
+else if (folder ==1){
+  add1("core");
+  add1("os");
+  add1("event");
+  add1("http");
+  add1("mail");
+}
+
+function add1(temp4){
+  dnodes[m]= { name: "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+temp4+"\\"};
+  nodes[s]=  "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+temp4+"\\"
+  m=m+1
+  s=s+1
+}
+
+    var nodes1 = new Array(dnodes.length);
+    for (var i=0; i<nodes1.length;i++){
+      nodes1[i] = dnodes[i].name;
+    }
+    //console.log(nodes1)
+
+    function uniq(a) {
+    var prims = {"boolean":{}, "number":{}, "string":{}}, objs = [];
+
+    return a.filter(function(item) {
+        var type = typeof item;
+        if(type in prims)
+            return prims[type].hasOwnProperty(item) ? false : (prims[type][item] = true);
+        else
+            return objs.indexOf(item) >= 0 ? false : objs.push(item);
+    });
+}
+
+    var nodes2 = uniq(nodes1);
+    var numrows=nodes2.length, numcols=nodes2.length;
+    var matrix = new Array(numrows);
+    nodes2.forEach(function(node, i) {
+      matrix[i] = d3.range(nodes2.length).map(function(j) { return {x: j, y: i, z: 0}; });
+    });
+
+    for (var i = 0; i < numrows; i++) {
+      for (var j = 0; j < links.length; j++) {
+        //var temp1 = nodes2[group[i]];
+        var temp1 = nodes2[i], temp2,temp3;
+        matrix[i][i].z=-1;
+        try{
+        if (temp1.slice(-1)=="\\"){
+          temp2=temp1.split(/[\\]/);
+          temp3 = temp2[7];
+          temp2=links[j].source;
+          //console.log(temp2 + temp3)
+          try{
+           if (temp2.includes("src\\"+temp3)){
+                var l = links[j].target;
+                var k = nodes2.indexOf(l);
+                try{
+                  matrix[k][i].z=matrix[k][i].z+1;}
+                catch(TypeError){
+                  name=false};
+              };
+
+          }catch(TypeError){name=false}}}catch(TypeError){name=false};
+        if (links[j].source == temp1){
+          //console.log(temp1+" "+links[j].source.name)
+          var l = links[j].target;
+          var y=0;
+          if (nodes2.indexOf(l)==-1){
+            var o = l.split(/[\\]/);
+            var p = o[7];
+            for (var t =0; t<numrows;t++){
+              if (nodes2[t].includes(p)){
+                y = t;
+              }
+            }
+          }
+          var k = nodes2.indexOf(l);
+          if (y!=0){k=y};
+          //console.log(i +" "+ k + " " +temp1+ " "+l);
+          try{
+            matrix[k][i].z=matrix[k][i].z+1;}
+          catch(TypeError){
+            name=false;
+          };
+        };//}
+      };
+    };
+    var k=0;
+    nodes.forEach(function(d,i){
+      var r = d.split(".");
+      var e;
+      for (var i=0;i<r.length;i++){
+        if(i==0){e=r[0]}
+        else if(i==r.length-1){e =e +"."+r[i]}
+        else{e =e +"\\"+r[i]}
+      }
+      nodes[k]=e;
+      k=k+1;
+    });
+    var k=0;
+    for(var i=0;i<nodes.length;i++){
+      if(nodes2.indexOf(nodes[i])!=-1){
+        nodes[k] = nodes[i];
+        k=k+1;
+      }
+    }
+//console.log(nodes)
+function newData(){
+  var a = dnodes[0].name.split(/[\\]/)[7];
+  for(i=0;i<links1.length;i++){
+    if(links1[i].order.includes(".src."+a)){
+      nodes3[v] = links1[i].order;
+      v=v+1;
+    }
+  }
+
+  var nodes4 = new Array(dnodes.length);
+  for (var i=0; i<nodes4.length;i++){
+    nodes4[i] = dnodes[i].name;
+  }
+
+  for (var i=0;i<nodes3.length;i++){
+    var s= nodes3[i].split(/[.]/).length;
+    nodes3[i] = "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\" + nodes3[i].split(/[.]/)[s-3]+"\\"+nodes3[i].split(/[.]/)[s-2] +"."+nodes3[i].split(/[.]/)[s-1]
+  }
+  nodes3.splice(-1,1) //if core
+
+}
+
+
+    var x = d3.scale.ordinal()
+        .domain(d3.range(numcols))
+        .rangeBands([0, width]);
+
+    var y = d3.scale.ordinal()
+        .domain(d3.range(numrows))
+        .rangeBands([0, height]);
+
+
+var rowLabels = new Array(numrows);
+
+for (var i = 0; i < numrows; i++) {
+  rowLabels[i] = n;
+  n=n+1;
+}
+
+var columnLabels = new Array(numrows);
+for (var i = 0; i < numcols; i++) {
+  //str = nodes2[group[i]];
+  str = nodes2[i];
+  str = str.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+  columnLabels[i] = (i) + "  " +str;
+}
+
+var test=[],test1=[];
+for(var i=0;i<nodes2.length;i++){
+  test[i]=i;
+  test1[i]=nodes2.indexOf(nodes[i]);
+}
+
+
+var orders = {
+  name: test,
+  group: test1
+};
+
+x.domain(orders.name);
+//console.log(nodes2)
+//console.log(nodes)
+  //console.log(orders.group)
+
+  for (var i = 0; i < numcols; i++) {
+    //str = nodes2[group[i]];
+    str = nodes2[i];
+    str = str.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+    columnLabels[i] = (i) + "  " +str;
+  }
+
+svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height);
+
+var row = svg.selectAll(".row")
+    .data(matrix)
+  .enter().append("g")
+    .attr("class", "row")
+    .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+    .each(row);
+
+row.append("line")
+    .attr("x2", width);
+
+row.append("text")
+    .attr("x", -6)
+    .attr("y", x.rangeBand() / 2)
+    .attr("dy", ".32em")
+    .attr("text-anchor", "end")
+    .attr("class","text")
+    .text(function(d, i) { return test[i]});
+
+var column = svg.selectAll(".column")
+    .data(matrix)
+  .enter().append("g")
+    .attr("class", "column")
+    .attr("transform", function(d, i) { return "translate(" + y(i) + ")rotate(-90)"; });
+
+column.append("line")
+    .attr("x1", -width);
+
+column.append("text")
+    .attr("x", 6)
+    .attr("y", x.rangeBand() / 2)
+    .attr("dy", ".32em")
+    .attr("text-anchor", "start")
+    .attr("class","text")
+    .text(function(d, i) { return columnLabels[i] });
+
+function row(row) {
+  var cell = d3.select(this).selectAll(".cell")
+      .data(row.filter(function(d) {return d.z}))
+    .enter().append("rect")
+      .attr("class", "cell")
+      .attr("x", function(d) {return x(d.x); })
+      .attr("width", x.rangeBand())
+      .attr("height", x.rangeBand())
+      //.style("fill-opacity", function(d) {return 1/d.z})
+      .style("fill", function(d){return colorMap(d.z)})
+      .on("mouseover", mouseover)
+      .on("mouseout", mouseout);
+}
+
+function mouseover(p) {
+  d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
+  d3.selectAll(".column text").classed("active", function(d, i) { return i == p.x; });
+  var temp1 = Math.round(this.x.animVal.value/this.width.animVal.value);
+  var temp2 =(Math.round((d3.event.pageY-margin.top)/this.width.animVal.value))-1;
+  selected = nodes[temp1];
+  selectedY = nodes[temp2];
+  if (temp2>temp1){
+    print();
+  } else {
+    print1();
+  }
+  tooltip.transition().style("opacity",1);
+  tooltip.html(p.z).style("left",(d3.event.pageX)+"px")
+    .style("top",(d3.event.pageY+"px"));
+  d3.select(this).style("opacity",0.5);
+}
+
+function mouseout() {
+  d3.selectAll("text").classed("active", false);
+  d3.select(this).style("opacity",1);
+}
+
+d3.select("#order").on("change", function() {
+  clearTimeout(timeout);
+  order(this.value);
+});
+
+function order(value) {
+  x.domain(orders[value]);
+
+  var t = svg.transition().duration(2500);
+
+  t.selectAll(".row")
+      .delay(function(d, i) { return x(i) * 4; })
+      .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
+    .selectAll(".cell")
+      .delay(function(d) { return x(d.x) * 4; })
+      .attr("x", function(d) { return x(d.x); });
+
+  t.selectAll(".column")
+      .delay(function(d, i) { return x(i) * 4; })
+      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+}
+
+var timeout = setTimeout(function() {
+  order("group");
+  d3.select("#order").property("selectedIndex", 2).node().focus();
+}, 2000);
+
+
+
+
+        function print1(){
+          var q =0, values=[];
+            for (var j = 0; j < links.length; j++) {
+              if(selected.slice(-1)=="\\"){
+                temp2=selected.split(/[\\]/);
+                temp3 = temp2[7];
+                if(links[j].source.includes("src\\"+temp3)){
+                  if (links[j].target ==selected){
+                    values[q]=links[j].source;
+                    q=q+1;
+                  }
+                }
+              }
+              else{
+                values[0]=selected
+              }
+            }
+            selectedY = selectedY.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","")
+            for (var i=0; i<values.length;i++){
+              values[i] = values[i].replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+            }
+
+                document.getElementById("here").innerHTML = (values + " depends on "+selectedY);
+
+
+        }
+
+
+        function print(){
+          var q =0, values=[];
+            for (var j = 0; j < links.length; j++) {
+              try{
+              if (selectedY.slice(-1)=="\\"){
+                temp2=selectedY.split(/[\\]/);
+                temp3 = temp2[7];
+                temp2=links[j].target;
+                 if (temp2.includes("src\\"+temp3)&&selected==links[j].source){
+                      var l = links[j].target;
+                        values[q]=l;
+                        q=q+1;
+                    }}
+                    else{values[0]=selectedY}}catch(TypeError){name=false;}}
+        selected = selected.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","")
+        for (var i=0; i<values.length;i++){
+          values[i] = values[i].replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+        }
+            document.getElementById("here").innerHTML = (selected + " depends on "+values);
+    }
+
+      //  .on("mouseover",function(d){
+      //    d3.selectAll(".row text").classed("active", function(d, i) { return i == d.y; });
+      //    d3.selectAll(".column text").classed("active", function(d, i) { return i == d.x; });
+      //  });
+
+
+
+    svg.append("circle")
+      .attr('r', 25)
+      .attr('cx',850)
+      .attr('cy',100)
+      .style('fill', 'red')
+      .on("mouseover",function(d){
+        d3.select("svg").remove();
+        initMat(1);
+      });
+
+      svg.append("circle")
+        .attr('r', 25)
+        .attr('cx',850)
+        .attr('cy',150)
+        .style('fill', 'orange')
+        .on("mouseover",function(d){
+          d3.select("svg").remove();
+          initMat(2);
+        });
+
+        svg.append("circle")
+          .attr('r', 25)
+          .attr('cx',850)
+          .attr('cy',200)
+          .style('fill', 'yellow')
+          .on("mouseover",function(d){
+            d3.select("svg").remove();
+            initMat(3);
+          });
+
+          svg.append("circle")
+            .attr('r', 25)
+            .attr('cx',850)
+            .attr('cy',250)
+            .style('fill', 'green')
+            .on("mouseover",function(d){
+              d3.select("svg").remove();
+              initMat(4);
+            });
+
+            svg.append("circle")
+              .attr('r', 25)
+              .attr('cx',850)
+              .attr('cy',300)
+              .style('fill', 'blue')
+              .on("mouseover",function(d){
+                d3.select("svg").remove();
+                initMat(5);
+              });
+
+              svg.append("circle")
+                .attr('r', 25)
+                .attr('cx',850)
+                .attr('cy',350)
+                .style('fill', 'purple')
+                .on("mouseover",function(d){
+                  d3.select("svg").remove();
+                  initMat(6);
+                });
+
+                var names = [{name: 'stream'},{name: 'mail'},{name: 'http'},{name:'event'},{name:'os'},{name:'core'}];
+
+                svg.data(names).append('text')
+                  .attr('x',850)
+                  .attr('y',100)
+                  .text(names[0].name)
+
+                  svg.data(names).append('text')
+                    .attr('x',850)
+                    .attr('y',150)
+                    .text(names[1].name)
+                    svg.data(names).append('text')
+                      .attr('x',850)
+                      .attr('y',200)
+                      .text(names[2].name)
+                      svg.data(names).append('text')
+                        .attr('x',850)
+                        .attr('y',250)
+                        .text(names[3].name)
+                        svg.data(names).append('text')
+                          .attr('x',850)
+                          .attr('y',300)
+                          .text(names[4].name)
+                          svg.data(names).append('text')
+                            .attr('x',850)
+                            .attr('y',350)
+                            .text(names[5].name)
+}
+
+
+
+
+
+
+});});
+  </script>
+<div class = "fixed">
+<p id="here"></p>
+</div>
+
+</body>
+</html>
