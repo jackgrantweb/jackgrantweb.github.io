@@ -41,17 +41,21 @@ fill: red;
     <option value="name">by Name</option>
     <option value="group">by Cluster</option>
   </select>
+  <br>
+  <p>Subsystem: <select id="subsystem">
+    <option value="1">stream</option>
+    <option value="2">mail</option>
+    <option value="3">http</option>
+    <option value="4">event</option>
+    <option value="5">os</option>
+    <option value="6">core</option>
+  </select>
   <script>
 
 
   var margin = {top: 200, right: 100, bottom: 100, left: 200},
       width = 800,
       height = 800;
-
-
-
-
-
 
         var colorMap = d3.scale.linear()
             .domain([-1, 0, 1])
@@ -68,8 +72,13 @@ fill: red;
 
   d3.csv("/data/test2.csv", function(error, links) {
     d3.csv("/data/test21.csv",function(error, links1){
-    initMat(6);
+      d3.select("#subsystem").on("change", function() {
+        d3.select("svg").remove()
+        initMat(this.value);
+      });
+      initMat(1)
 function initMat(folder){
+
   var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -559,106 +568,8 @@ var timeout = setTimeout(function() {
             document.getElementById("here").innerHTML = (selected + " depends on "+values);
     }
 
-      //  .on("mouseover",function(d){
-      //    d3.selectAll(".row text").classed("active", function(d, i) { return i == d.y; });
-      //    d3.selectAll(".column text").classed("active", function(d, i) { return i == d.x; });
-      //  });
 
-
-
-    svg.append("circle")
-      .attr('r', 25)
-      .attr('cx',850)
-      .attr('cy',100)
-      .style('fill', 'red')
-      .on("mouseover",function(d){
-        d3.select("svg").remove();
-        initMat(1);
-      });
-
-      svg.append("circle")
-        .attr('r', 25)
-        .attr('cx',850)
-        .attr('cy',150)
-        .style('fill', 'orange')
-        .on("mouseover",function(d){
-          d3.select("svg").remove();
-          initMat(2);
-        });
-
-        svg.append("circle")
-          .attr('r', 25)
-          .attr('cx',850)
-          .attr('cy',200)
-          .style('fill', 'yellow')
-          .on("mouseover",function(d){
-            d3.select("svg").remove();
-            initMat(3);
-          });
-
-          svg.append("circle")
-            .attr('r', 25)
-            .attr('cx',850)
-            .attr('cy',250)
-            .style('fill', 'green')
-            .on("mouseover",function(d){
-              d3.select("svg").remove();
-              initMat(4);
-            });
-
-            svg.append("circle")
-              .attr('r', 25)
-              .attr('cx',850)
-              .attr('cy',300)
-              .style('fill', 'blue')
-              .on("mouseover",function(d){
-                d3.select("svg").remove();
-                initMat(5);
-              });
-
-              svg.append("circle")
-                .attr('r', 25)
-                .attr('cx',850)
-                .attr('cy',350)
-                .style('fill', 'purple')
-                .on("mouseover",function(d){
-                  d3.select("svg").remove();
-                  initMat(6);
-                });
-
-                var names = [{name: 'stream'},{name: 'mail'},{name: 'http'},{name:'event'},{name:'os'},{name:'core'}];
-
-                svg.data(names).append('text')
-                  .attr('x',850)
-                  .attr('y',100)
-                  .text(names[0].name)
-
-                  svg.data(names).append('text')
-                    .attr('x',850)
-                    .attr('y',150)
-                    .text(names[1].name)
-                    svg.data(names).append('text')
-                      .attr('x',850)
-                      .attr('y',200)
-                      .text(names[2].name)
-                      svg.data(names).append('text')
-                        .attr('x',850)
-                        .attr('y',250)
-                        .text(names[3].name)
-                        svg.data(names).append('text')
-                          .attr('x',850)
-                          .attr('y',300)
-                          .text(names[4].name)
-                          svg.data(names).append('text')
-                            .attr('x',850)
-                            .attr('y',350)
-                            .text(names[5].name)
 }
-
-
-
-
-
 
 });});
   </script>
