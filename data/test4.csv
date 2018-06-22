@@ -1,0 +1,5 @@
+source,target,References,From Entities,To Entities
+C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\nginx.c,C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\nginx.h,9,5,4
+C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\nginx.c,C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\ngx_array.c,3,3,1
+C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\nginx.c,C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\ngx_array.h,17,9,3
+C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\nginx.c,C:\Users\JG31348\Downloads\nginx-master\nginx-master\src\core\ngx_buf.h,4,2,3
