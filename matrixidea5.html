@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <title>CSV</title>
+  <style>
+  .circle {
+    fill: #ccc;
+    stroke: #fff;
+    stroke-width: 1px;
+  }
+  .text {
+    font-family: "Courier New";
+    font-size: 12px;
+  }
+  div.fixed {
+  position: fixed;
+  width: 100%;
+  bottom: 2px;
+}
+
+.background {
+fill: #fff;
+}
+
+line {
+stroke: #808080;
+stroke-width: 0.3
+}
+
+text.active {
+fill: red;
+}
+
+    </style>
+</head>
+<body>
+  <p>Order: <select id="order">
+    <option value="name">by Name</option>
+    <option value="group">by Cluster</option>
+    <!-- <option value="test">Test</option> -->
+  </select>
+  <br>
+  <p>Subsystem: <select id="subsystem">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+    <option value="14">14</option>
+    <option value="15">15</option>
+    <option value="16">16</option>
+    <option value="17">17</option>
+    <option value="18">18</option>
+    <option value="19">19</option>
+    <option value="20">20</option>
+  </select>
+<p id="list"></p>
+  <script>
+
+
+  var margin = {top: 200, right: 100, bottom: 100, left: 200},
+      width = 800,
+      height = 800;
+
+        var colorMap = d3.scale.linear()
+            .domain([-1, 0, 1])
+            .range(["grey", "white", "lightblue"]);
+
+      var tooltip = d3.select("body").append("div")
+          .style("position","absolute")
+          .style("background","#f4f4f4")
+          .style("padding","5 15px")
+          .style("border","1px #333 solid")
+          .style("opacity","0");
+
+var url = window.location.href;
+var url1 = new URL(url);
+var loc1 = url1.searchParams.get("loc1");
+var loc2 = url1.searchParams.get("loc2");
+
+  d3.csv(loc1, function(error, links) {
+    d3.csv(loc2,function(error, links1){
+    //  d3.csv("/data/list11.csv",function(error,testabe){
+      d3.select("#subsystem").on("change", function() {
+        d3.select("svg").remove()
+        var diff1 = diff();
+        if(this.value<diff1.length+1){
+          start(this.value);
+        } else{
+          start(1)
+        }
+      });
+      //initMat(1)
+      start(1)
+
+function diff(){
+  var diff1=[]
+  var low=999
+  try{
+    var refval = links[0].source.split(/[\\]/)
+  }catch(TypeError){name=false};
+  for(var i=0;i<refval.length;i++){
+    for(var j=0;j<links.length;j++){
+      try{
+      if(links[j].source.split(/[\\]/)[i]!=refval[i]){
+        if(i<low){
+          low=i
+        }
+      }
+      }catch(TypeError){name=false};
+  }}
+  for(var j=0;j<links.length;j++){
+      if(diff1.indexOf(links[j].source.split(/[\\]/)[low])==-1){
+        diff1.push(links[j].source.split(/[\\]/)[low])
+      }
+  }
+  return diff1;
+}
+
+function start(folder){
+  var diffnames=[]
+  var low=999
+  try{
+    var refval = links[0].source.split(/[\\]/)
+  }catch(TypeError){name=false};
+  for(var i=0;i<refval.length;i++){
+    for(var j=0;j<links.length;j++){
+      try{
+      if(links[j].source.split(/[\\]/)[i]!=refval[i]){
+        if(i<low){
+          low=i
+        }
+      }
+      }catch(TypeError){name=false};
+  }}
+  for(var j=0;j<links.length;j++){
+      if(diffnames.indexOf(links[j].source.split(/[\\]/)[low])==-1){
+        diffnames.push(links[j].source.split(/[\\]/)[low])
+      }
+  }
+  console.log(diffnames)
+  var diffnames1 = diffnames.toString();
+  document.getElementById("list").innerHTML = diffnames1;
+  initMat(folder,diffnames)
+}
+function initMat(folder,diffnames){
+  var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("margin-left", -margin.left +10 + "px")
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  //console.log(links)
+var dnodes=[];
+var nodes = [];
+var n=0;
+var m=0;
+
+
+
+
+links.forEach(function(link){
+try{
+    if(link.source.indexOf("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+diffnames[folder-1]+"\\") ==0){
+      (dnodes[m]= {name: link.source});
+      m=m+1;
+    }
+  //   else if (folder ==0){
+  //   if (link.source.search(/C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\misc\\/i) ==0 ){
+  //     //link.source = nodes[link.source] ||
+  //     (dnodes[m]= {name: link.source});
+  //     m=m+1;
+  //   }}
+  }catch(TypeError){name=false};
+});
+ var s=0;
+ console.log(dnodes)
+
+links1.forEach(function(link){
+  try{
+  if(link.order.indexOf("C:.Users.JG31348.Downloads.nginx-master.nginx-master.src."+diffnames[folder-1]+".") ==0){
+    (nodes[s]=  link.order);
+    s=s+1;
+  }
+  //   if (folder ==6){
+  //   if (link.order.search(/C:.Users.JG31348.Downloads.nginx-master.nginx-master.src.core./i) ==0 ){
+  //     //link.source = nodes[link.source] ||
+  //     (nodes[s]=  link.order);
+  //     s=s+1;
+  //   }
+    }catch(TypeError){name=false};
+});
+
+for (var i=0;i<diffnames.length;i++){
+  if(i!=folder-1){
+    add1(diffnames[i])
+  }
+}
+
+function add1(temp4){
+  dnodes[m]= { name: "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+temp4+"\\"};
+  nodes[s]=  "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+temp4+"\\"
+  m=m+1
+  s=s+1
+}
+function add2(temp4){
+  test2[k]="C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+temp4+"\\"
+  k+=1
+}
+
+    var nodes1 = new Array(dnodes.length);
+    for (var i=0; i<nodes1.length;i++){
+      nodes1[i] = dnodes[i].name;
+    }
+    //console.log(nodes1)
+
+    function uniq(a) {
+    var prims = {"boolean":{}, "number":{}, "string":{}}, objs = [];
+
+    return a.filter(function(item) {
+        var type = typeof item;
+        if(type in prims)
+            return prims[type].hasOwnProperty(item) ? false : (prims[type][item] = true);
+        else
+            return objs.indexOf(item) >= 0 ? false : objs.push(item);
+    });
+}
+
+    var nodes2 = uniq(nodes1);
+    var numrows=nodes2.length, numcols=nodes2.length;
+    var matrix = new Array(numrows);
+    nodes2.forEach(function(node, i) {
+      matrix[i] = d3.range(nodes2.length).map(function(j) { return {x: j, y: i, z: 0}; });
+    });
+
+    for (var i = 0; i < numrows; i++) {
+      for (var j = 0; j < links.length; j++) {
+        //var temp1 = nodes2[group[i]];
+        var temp1 = nodes2[i], temp2,temp3;
+        matrix[i][i].z=-1;
+        try{
+        if (temp1.slice(-1)=="\\"){
+          temp2=temp1.split(/[\\]/);
+          temp3 = temp2[7];
+          temp2=links[j].source;
+          //console.log(temp2 + temp3)
+          try{
+           if (temp2.includes("src\\"+temp3)){
+                var l = links[j].target;
+                var k = nodes2.indexOf(l);
+                try{
+                  matrix[k][i].z=matrix[k][i].z+1;}
+                catch(TypeError){
+                  name=false};
+              };
+
+          }catch(TypeError){name=false}}}catch(TypeError){name=false};
+        if (links[j].source == temp1){
+          //console.log(temp1+" "+links[j].source.name)
+          var l = links[j].target;
+          var y=0;
+          if (nodes2.indexOf(l)==-1){
+            var o = l.split(/[\\]/);
+            var p = o[7];
+            for (var t =0; t<numrows;t++){
+              if (nodes2[t].includes(p)){
+                y = t;
+              }
+            }
+          }
+          var k = nodes2.indexOf(l);
+          if (y!=0){k=y};
+          //console.log(i +" "+ k + " " +temp1+ " "+l);
+          try{
+            matrix[k][i].z=matrix[k][i].z+1;}
+          catch(TypeError){
+            name=false;
+          };
+        };//}
+      };
+    };
+    var k=0;
+    nodes.forEach(function(d,i){
+      var r = d.split(".");
+      var e;
+      for (var i=0;i<r.length;i++){
+        if(i==0){e=r[0]}
+        else if(i==r.length-1){e =e +"."+r[i]}
+        else{e =e +"\\"+r[i]}
+      }
+      nodes[k]=e;
+      k=k+1;
+    });
+    var k=0;
+    for(var i=0;i<nodes.length;i++){
+      if(nodes2.indexOf(nodes[i])!=-1){
+        nodes[k] = nodes[i];
+        k=k+1;
+      }
+    }
+//console.log(nodes)
+function newData(){
+  var a = dnodes[0].name.split(/[\\]/)[7];
+  for(i=0;i<links1.length;i++){
+    if(links1[i].order.includes(".src."+a)){
+      nodes3[v] = links1[i].order;
+      v=v+1;
+    }
+  }
+
+  var nodes4 = new Array(dnodes.length);
+  for (var i=0; i<nodes4.length;i++){
+    nodes4[i] = dnodes[i].name;
+  }
+
+  for (var i=0;i<nodes3.length;i++){
+    var s= nodes3[i].split(/[.]/).length;
+    nodes3[i] = "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\" + nodes3[i].split(/[.]/)[s-3]+"\\"+nodes3[i].split(/[.]/)[s-2] +"."+nodes3[i].split(/[.]/)[s-1]
+  }
+  nodes3.splice(-1,1) //if core
+
+}
+
+
+    var x = d3.scale.ordinal()
+        .domain(d3.range(numcols))
+        .rangeBands([0, width]);
+
+    var y = d3.scale.ordinal()
+        .domain(d3.range(numrows))
+        .rangeBands([0, height]);
+
+
+var rowLabels = new Array(numrows);
+
+for (var i = 0; i < numrows; i++) {
+  rowLabels[i] = n;
+  n=n+1;
+}
+
+var columnLabels = new Array(numrows);
+for (var i = 0; i < numcols; i++) {
+  //str = nodes2[group[i]];
+  str = nodes2[i];
+  str = str.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+  columnLabels[i] = (i) + "  " +str;
+}
+
+var test=[],test1=[];
+for(var i=0;i<nodes2.length;i++){
+  test[i]=i;
+  test1[i]=nodes2.indexOf(nodes[i]);
+}
+// var test2=[]
+// k=0;
+// testabe.forEach(function(testabe1){
+//   if(nodes2.indexOf(testabe1.order)!=-1){
+//   test2[k]=nodes2.indexOf(testabe1.order);
+//   k+=1;
+// }
+// })
+// if (folder ==6){
+//   test2.push(73)
+//   test2.push(74)
+//   test2.push(75)
+//   test2.push(76)
+//   test2.push(77)
+// }
+
+
+var orders = {
+  name: test,
+  group: test1,
+  // test: test2
+};
+
+x.domain(orders.name);
+  console.log(orders.group)
+  console.log(orders.test)
+
+  for (var i = 0; i < numcols; i++) {
+    //str = nodes2[group[i]];
+    str = nodes2[i];
+    str = str.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+    columnLabels[i] = (i) + "  " +str;
+  }
+
+svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height);
+
+var row = svg.selectAll(".row")
+    .data(matrix)
+  .enter().append("g")
+    .attr("class", "row")
+    .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+    .each(row);
+
+row.append("line")
+    .attr("x2", width);
+
+row.append("text")
+    .attr("x", -6)
+    .attr("y", x.rangeBand() / 2)
+    .attr("dy", ".32em")
+    .attr("text-anchor", "end")
+    .attr("class","text")
+    .text(function(d, i) { return test[i]});
+
+var column = svg.selectAll(".column")
+    .data(matrix)
+  .enter().append("g")
+    .attr("class", "column")
+    .attr("transform", function(d, i) { return "translate(" + y(i) + ")rotate(-90)"; });
+
+column.append("line")
+    .attr("x1", -width);
+
+column.append("text")
+    .attr("x", 6)
+    .attr("y", x.rangeBand() / 2)
+    .attr("dy", ".32em")
+    .attr("text-anchor", "start")
+    .attr("class","text")
+    .text(function(d, i) { return columnLabels[i] });
+
+function row(row) {
+  var cell = d3.select(this).selectAll(".cell")
+      .data(row.filter(function(d) {return d.z}))
+    .enter().append("rect")
+      .attr("class", "cell")
+      .attr("x", function(d) {return x(d.x); })
+      .attr("width", x.rangeBand())
+      .attr("height", x.rangeBand())
+      //.style("fill-opacity", function(d) {return 1/d.z})
+      .style("fill", function(d){return colorMap(d.z)})
+      .on("mouseover", mouseover)
+      .on("mouseout", mouseout);
+}
+
+function mouseover(p) {
+  d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
+  d3.selectAll(".column text").classed("active", function(d, i) { return i == p.x; });
+  var temp1 = Math.round(this.x.animVal.value/this.width.animVal.value);
+  var temp2 =(Math.round((d3.event.pageY-margin.top)/this.width.animVal.value))-1;
+  selected = nodes[temp1];
+  selectedY = nodes[temp2];
+  if (temp2>temp1){
+    print();
+  } else {
+    print1();
+  }
+  tooltip.transition().style("opacity",1);
+  tooltip.html(p.z).style("left",(d3.event.pageX)+"px")
+    .style("top",(d3.event.pageY+"px"));
+  d3.select(this).style("opacity",0.5);
+}
+
+function mouseout() {
+  d3.selectAll("text").classed("active", false);
+  d3.select(this).style("opacity",1);
+}
+
+d3.select("#order").on("change", function() {
+  clearTimeout(timeout);
+  order(this.value);
+});
+
+function order(value) {
+  x.domain(orders[value]);
+
+  var t = svg.transition().duration(2500);
+
+  t.selectAll(".row")
+      .delay(function(d, i) { return x(i) * 4; })
+      .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
+    .selectAll(".cell")
+      .delay(function(d) { return x(d.x) * 4; })
+      .attr("x", function(d) { return x(d.x); });
+
+  t.selectAll(".column")
+      .delay(function(d, i) { return x(i) * 4; })
+      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
+  t.selectAll(".rect")
+      .delay(function(d, i) { return x(i) * 4; })
+      .attr("fill-opacity", 0.5);
+}
+
+var timeout = setTimeout(function() {
+  order("group");
+  d3.select("#order").property("selectedIndex", 2).node().focus();
+}, 2000);
+
+
+        function print1(){
+          var q =0, values=[];
+            for (var j = 0; j < links.length; j++) {
+              if(selected.slice(-1)=="\\"){
+                temp2=selected.split(/[\\]/);
+                temp3 = temp2[7];
+                if(links[j].source.includes("src\\"+temp3)){
+                  if (links[j].target ==selected){
+                    values[q]=links[j].source;
+                    q=q+1;
+                  }
+                }
+              }
+              else{
+                values[0]=selected
+              }
+            }
+            selectedY = selectedY.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","")
+            for (var i=0; i<values.length;i++){
+              values[i] = values[i].replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+            }
+
+                document.getElementById("here").innerHTML = (values + " depends on "+selectedY);
+
+
+        }
+
+
+        function print(){
+          var q =0, values=[];
+            for (var j = 0; j < links.length; j++) {
+              try{
+              if (selectedY.slice(-1)=="\\"){
+                temp2=selectedY.split(/[\\]/);
+                temp3 = temp2[7];
+                temp2=links[j].target;
+                 if (temp2.includes("src\\"+temp3)&&selected==links[j].source){
+                      var l = links[j].target;
+                        values[q]=l;
+                        q=q+1;
+                    }}
+                    else{values[0]=selectedY}}catch(TypeError){name=false;}}
+        selected = selected.replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","")
+        for (var i=0; i<values.length;i++){
+          values[i] = values[i].replace("C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\","");
+        }
+            document.getElementById("here").innerHTML = (selected + " depends on "+values);
+    }
+
+testdata=[0,3,8,10,11,20,24,27]
+
+
+  for(var i=0; i<testdata.length;i++){
+    var m = testdata[i]
+    var n=testdata[i+1]
+    if(n==undefined){
+      n=nodes2.length-diffnames.length+1
+    }
+    var rectt = svg.append('rect')
+                    .attr('x',m*(width/test.length))
+                    .attr('y',m*(width/test.length))
+                    .attr("width", (n-m)*(width/test.length))
+                    .attr("height", (n-m)*(width/test.length))
+                    .attr('fill','red')
+                    .attr('fill-opacity',0)
+                    .attr('class','rect');
+
+}
+}
+
+
+
+});});//});
+  </script>
+<div class = "fixed">
+<p id="here"></p>
+</div>
+
+</body>
+</html>
