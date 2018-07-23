@@ -40,6 +40,7 @@ fill: red;
   <p>Order: <select id="order">
     <option value="name">by Name</option>
     <option value="group">by Cluster</option>
+    <!-- <option value="test">Test</option> -->
   </select>
   <br>
   <p>Subsystem: <select id="subsystem">
@@ -72,13 +73,14 @@ fill: red;
 
   d3.csv("/data/test2.csv", function(error, links) {
     d3.csv("/data/test21.csv",function(error, links1){
+      d3.csv("/data/list11.csv",function(error,testabe){
       d3.select("#subsystem").on("change", function() {
         d3.select("svg").remove()
         initMat(this.value);
       });
       initMat(1)
 function initMat(folder){
-
+console.log(testabe[0].order)
   var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -200,6 +202,7 @@ try{
     }}}catch(TypeError){name=false};
 });
 
+
 if (folder ==6){
   add1("stream");
   add1("os");
@@ -248,6 +251,10 @@ function add1(temp4){
   nodes[s]=  "C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+temp4+"\\"
   m=m+1
   s=s+1
+}
+function add2(temp4){
+  test2[k]="C:\\Users\\JG31348\\Downloads\\nginx-master\\nginx-master\\src\\"+temp4+"\\"
+  k+=1
 }
 
     var nodes1 = new Array(dnodes.length);
@@ -393,17 +400,33 @@ for(var i=0;i<nodes2.length;i++){
   test[i]=i;
   test1[i]=nodes2.indexOf(nodes[i]);
 }
+// var test2=[]
+// k=0;
+// testabe.forEach(function(testabe1){
+//   if(nodes2.indexOf(testabe1.order)!=-1){
+//   test2[k]=nodes2.indexOf(testabe1.order);
+//   k+=1;
+// }
+// })
+// if (folder ==6){
+//   test2.push(73)
+//   test2.push(74)
+//   test2.push(75)
+//   test2.push(76)
+//   test2.push(77)
+// }
 
 
 var orders = {
   name: test,
-  group: test1
+  group: test1,
+  // test: test2
 };
 
 x.domain(orders.name);
-//console.log(nodes2)
-//console.log(nodes)
-  //console.log(orders.group)
+  console.log(testabe)
+  console.log(orders.group)
+  console.log(orders.test)
 
   for (var i = 0; i < numcols; i++) {
     //str = nodes2[group[i]];
@@ -509,14 +532,16 @@ function order(value) {
   t.selectAll(".column")
       .delay(function(d, i) { return x(i) * 4; })
       .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
+  t.selectAll(".rect")
+      .delay(function(d, i) { return x(i) * 4; })
+      .attr("fill-opacity", 0.5);
 }
 
 var timeout = setTimeout(function() {
   order("group");
   d3.select("#order").property("selectedIndex", 2).node().focus();
 }, 2000);
-
-
 
 
         function print1(){
@@ -568,10 +593,31 @@ var timeout = setTimeout(function() {
             document.getElementById("here").innerHTML = (selected + " depends on "+values);
     }
 
+testdata=[0,3,8,10,11,20,24,27]
+
+
+  for(var i=0; i<testdata.length;i++){
+    var m = testdata[i]
+    var n=testdata[i+1]
+    if(n==undefined){
+      n=nodes2.length-5 //where 5 = # of folders
+    }
+    console.log(n)
+    var rectt = svg.append('rect')
+                    .attr('x',m*(width/test.length))
+                    .attr('y',m*(width/test.length))
+                    .attr("width", (n-m)*(width/test.length))
+                    .attr("height", (n-m)*(width/test.length))
+                    .attr('fill','red')
+                    .attr('fill-opacity',0)
+                    .attr('class','rect');
 
 }
+}
 
-});});
+
+
+});});});
   </script>
 <div class = "fixed">
 <p id="here"></p>
