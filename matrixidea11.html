@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <title>CSV</title>
+  <style>
+  .circle {
+    fill: #ccc;
+    stroke: #fff;
+    stroke-width: 1px;
+  }
+  .text {
+    font-family: "Courier New";
+    font-size: 12px;
+  }
+  div.fixed {
+    position: fixed;
+    width: 100%;
+    bottom: 2px;
+  }
+
+  .background {
+    fill: #fff;
+  }
+
+  line {
+    stroke: #808080;
+    stroke-width: 0.3
+  }
+
+  text.active {
+    fill: red;
+  }
+
+  </style>
+</head>
+<body>
+  <p>Order: <select id="order">
+    <option value="name">by Name</option>
+    <option value="group">by Cluster</option>
+    <!-- <option value="test">Test</option> -->
+  </select>
+  <br>
+  <p>Subsystem: <select id="subsystem">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+    <option value="14">14</option>
+    <option value="15">15</option>
+    <option value="16">16</option>
+    <option value="17">17</option>
+    <option value="18">18</option>
+    <option value="19">19</option>
+    <option value="20">20</option>
+  </select>
+  <p id="list"></p>
+  <script>
+  //both of the select menus are at the top of the page and the list section is the list of all subsystems
+  //FUTURE WORK:
+  // make the directory structure interactive and easy to use, like Lattix DSM
+  // clean the code and get rid of the Lattix remnants (links1 and etc)
+
+  var margin = {top: 250, right: 200, bottom: 100, left: 250}, //left and top are the only margins that matter
+  width = 800,
+  height = 800;
+
+  var colorMap = d3.scale.linear()
+  .domain([-1, 0, 1])
+  .range(["grey", "white", "lightblue"]);
+
+  var tooltip = d3.select("body").append("div")
+  .style("position","absolute")
+  .style("background","#f4f4f4")
+  .style("padding","5 15px")
+  .style("border","1px #333 solid")
+  .style("opacity","0");
+
+  // example URL = http://localhost:8080/matrixidea5.html?loc1=/data/test2.csv&loc2=/data/test24.csv
+  var url = window.location.href;
+  var url1 = new URL(url);
+  var loc1 = url1.searchParams.get("loc1"); //the file locations have to be in the url
+  var extra=''
+
+  //this is the start to the main portion of the code. the first 2 systems load the 2 files
+  d3.csv(loc1, function(error, links) {
+      d3.select("#subsystem").on("change", function() { //this starts the animation. There is an automatic timer towards the bottom too
+        d3.select("svg").remove()
+        var diff1 = diff();
+        if(this.value<diff1.length+1){
+          start(this.value,0);
+        } else{
+          extra = "Please select a valid subsystem, 1 to "+diff1.length+": " //error catching for choosing a nonexistent subsystem
+          start(1,extra)
+        }
+      });
+
+      var temp= "Options for subsystems: "
+      start(1,temp)
+
+      //This function finds the different top level folders and returns them as an array
+      //This is done by checking where the directory names deviate after being split by \
+      //Then the different names at the deviation point are recorded
+      function diff(){
+        var diff1=[]
+        var low=999
+        try{
+          var refval = links[0].source.split(/[\\]/)
+        }catch(TypeError){name=false};
+        for(var i=0;i<refval.length;i++){
+          for(var j=0;j<links.length;j++){
+            try{
+              if(links[j].source.split(/[\\]/)[i]!=refval[i]){
+                if(i<low){
+                  low=i
+                }
+              }
+            }catch(TypeError){name=false};
+          }}
+          for(var j=0;j<links.length;j++){
+            if(diff1.indexOf(links[j].source.split(/[\\]/)[low])==-1){
+              diff1.push(links[j].source.split(/[\\]/)[low])
+            }
+          }
+          return diff1;
+      }
+
+      //start is the same function for diff but it uses the Lattix CSV which uses . to seperate the directory instead of \
+      function start(folder,extra){
+        var diffnames=diff();
+              console.log(diffnames)
+              var diffnames1 = diffnames.toString();
+              if (extra==0){
+                extra = "You chose "+diffnames[folder-1]+": "}
+                document.getElementById("list").innerHTML = extra + diffnames1;
+                initMat(folder,diffnames)
+      }
+
+      //main method, everything else is done here
+      function initMat(folder,diffnames){
+        var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var dnodes=[];
+        var nodes = [];
+        var n=0;
+        var m=0;
+        cext = ['c','h','cc','cpp','cxx','hh','hpp','hxx','inl','C','H'] //this code only works for c right now but this could easily be changed
+
+        //loc1start and loc2start are the portion of the directory before the first deviation.
+        //These are used to display information without clutter and to standardize the inputs to be in the same information
+        //usually loc1start will involve \ and loc2start will have .
+        //this is especially useful if you run Understand and Lattix from different computers
+        var loc1start = links[3].source.split(/[\\]/)[0]
+        var temp1=links[3].source.split(/[\\]/), less=100;
+        for (var i=0; i<10;i++){
+          links.forEach(function(link){
+            var temp=link.source.split(/[\\]/)
+            if(temp1[i]!=temp[i]){
+              if (i<less){
+                less=i
+              }
+            }
+          })}
+          for (var i=1;i<less;i++){
+            loc1start = loc1start+'\\'+links[3].source.split(/[\\]/)[i]
+          }
+
+            loc1start+='\\'
+
+          //This next part parses the CSV files into 2 different arrays
+          for (var i=0;i<diffnames.length;i++){ //this part is to add the files from the current folders and the folders that aren't currently selected in ordeer to show all of the information
+            if(i==folder-1){
+              var lightershade=[]
+              links.forEach(function(link){
+                try{
+                  if(link.source.indexOf(loc1start+diffnames[folder-1]+"\\") ==0){
+                    (dnodes[m]= {name: link.source})
+                    m=m+1;
+                  }
+                }catch(TypeError){name=false};
+              });
+            }
+            else if(i!=folder-1){ // adds the folders not currently selected
+              add1(diffnames[i])
+            }
+          }
+
+            function add1(temp4){ // adds the folders not currently selected
+              dnodes[m]= { name: loc1start+temp4+"\\"};
+              nodes.push( loc1start+temp4+"\\")
+              m=m+1
+            }
+
+            var nodes1 = new Array(dnodes.length); //creates a new array with the same length as one of the arrays
+            for (var i=0; i<nodes1.length;i++){
+              nodes1[i] = dnodes[i].name;
+            }
+
+            //this function, not mine, makes sure each element is unique, sometimes a duplicate will appear
+            function uniq(a) {
+              var prims = {"boolean":{}, "number":{}, "string":{}}, objs = [];
+
+              return a.filter(function(item) {
+                var type = typeof item;
+                if(type in prims)
+                return prims[type].hasOwnProperty(item) ? false : (prims[type][item] = true);
+                else
+                return objs.indexOf(item) >= 0 ? false : objs.push(item);
+              });
+            }
+
+            //the next section maintains the arrays, including making the prefix right and erasing suplicates
+
+            nodes = uniq(nodes)
+            var nodes2 = uniq(nodes1);
+            var numrows=nodes2.length, numcols=nodes2.length;
+            var matrix = new Array(numrows);
+
+
+//this next section uses the warfield algorithm of reachability to reorder the binary matrix
+            var list = []
+            var final =[]
+            var vari = false
+
+            //this part finds the dependencies that the algorithm requires (Table I in the paper)
+            // The element is based on the target and the reachability set is the source or else the DSM is flipped
+            for (var i=0;i<nodes2.length;i++){
+              var first = nodes2[i]
+              var temp=[]
+              for (var j=0;j<links.length;j++){
+                if( links[j].target == first){
+                  if (nodes2.indexOf(links[j].source)!=-1){
+                    temp.push(nodes2.indexOf(links[j].source))
+                }}
+              }
+              temp.push(nodes2.indexOf(first))
+              list.push(temp)
+            }
+            //this part finds where the folders are in the code so these don't get reordered
+            var folders=[]
+            for (var i=0;i<nodes2.length;i++){
+              if(nodes2[i].split('.').length==1){
+                folders.push(i)
+                delete list[i]
+              }
+            }
+            //the main while loop to reorder the files
+            while(vari==false){
+            temp=[]
+            for (var i=0;i<nodes2.length;i++){ //find where there is only a single element in the reachability set
+              try{
+              if(list[i].length==1){
+                temp.push(i) //record value
+                delete list[i] //delete the value from the place in the arrray
+              }}catch(TypeError){name=false}
+            }
+            var temparr = []
+            for (var i=0; i<list.length;i++){ //delete the values from every other element set, for loop of every element
+              var listtemp = list[i]
+              try{
+              for (var j=0; j<temp.length;j++){ //for loop of every deleted number
+                if (listtemp.indexOf(temp[j])!=-1){ //if the element set contains the deleted value
+                  delete listtemp[listtemp.indexOf(temp[j])] //delete the value
+                }
+              }}catch(TypeError){name=false}
+              temparr.push(listtemp) //repush the new arrays for each element set, will contain 'empty' where deleted
+            }
+
+              list=[]
+              for (var i=0;i<temparr.length;i++){  //this for loop deletes the places in the array that are 'empty'
+                var listtemp1=[] //this is done by checking each element and if it is undefined, it is not readded
+                var listtemp = temparr[i]
+                if(listtemp!=undefined ){
+                for (j=0;j<listtemp.length;j++){
+                  if(listtemp[j]!=undefined){
+                  listtemp1.push(listtemp[j])}
+                }
+              if (listtemp1.length>0){ //then the list array is rebuilt without the empty values in the boxes
+              list.push(listtemp1)     // this is done because an array with [2, empty] gets returned as 2
+            }}else{list.push(undefined)}} //when it should be 1 for our calculations in the algorithm
+
+            //if nothing is deleted, no array has 1 value, so check to see if any have 2
+            //this should be a while loop in theory
+            if(temp.length==0){
+              temp=[]
+              for (var i=0;i<nodes2.length;i++){
+                try{
+                if(list[i].length==2){
+                  temp.push(i)
+                  delete list[i]
+                }}catch(TypeError){name=false}
+              }
+              var temparr = []
+              for (var i=0; i<list.length;i++){
+                var listtemp = list[i]
+                try{
+                for (var j=0; j<temp.length;j++){
+                  if (listtemp.indexOf(temp[j])!=-1){
+                    delete listtemp[listtemp.indexOf(temp[j])]
+                  }
+                }}catch(TypeError){name=false}
+                temparr.push(listtemp)
+              }
+              console.log(temparr)
+                list=[]
+                for (var i=0;i<temparr.length;i++){
+                  var listtemp1=[]
+                  var listtemp = temparr[i]
+                  if(listtemp!=undefined ){
+                  for (j=0;j<listtemp.length;j++){
+                    if(listtemp[j]!=undefined){
+                    listtemp1.push(listtemp[j])}
+                  }
+                if (listtemp1.length>0){
+                list.push(listtemp1)
+              }}else{list.push(undefined)}}
+            }
+
+            //check for arrays with 3 if none have 1 or 2
+            if(temp.length==0){
+              temp=[]
+              for (var i=0;i<nodes2.length;i++){
+                try{
+                if(list[i].length==3){
+                  temp.push(i)
+                  delete list[i]
+                }}catch(TypeError){name=false}
+              }
+              var temparr = []
+              for (var i=0; i<list.length;i++){
+                var listtemp = list[i]
+                try{
+                for (var j=0; j<temp.length;j++){
+                  if (listtemp.indexOf(temp[j])!=-1){
+                    delete listtemp[listtemp.indexOf(temp[j])]
+                  }
+                }}catch(TypeError){name=false}
+                temparr.push(listtemp)
+              }
+              console.log(temparr)
+                list=[]
+                for (var i=0;i<temparr.length;i++){
+                  var listtemp1=[]
+                  var listtemp = temparr[i]
+                  if(listtemp!=undefined ){
+                  for (j=0;j<listtemp.length;j++){
+                    if(listtemp[j]!=undefined){
+                    listtemp1.push(listtemp[j])}
+                  }
+                if (listtemp1.length>0){
+                list.push(listtemp1)
+              }}else{list.push(undefined)}}
+            }
+
+            //add the deleted files to the temp in orders//the order is important for ordering
+            //and the first and last element of each array will be used for the partitions
+            final.push(temp)
+            var countund = 0
+            for (var i=0; i<list.length;i++){
+              if (list[i]==undefined){
+                countund+=1 //count the number of slots that have been deleted and are now undefined
+              }
+            }
+            if(countund==list.length){ //if all are undefined, this loop is done, break it
+              vari=true
+              break
+            }
+          }
+
+
+          //this matrix needs to be created like this for the visualization.
+          //the x and y are used for positioning and the z is the # of deps
+            nodes2.forEach(function(node, i) {
+              matrix[i] = d3.range(nodes2.length).map(function(j) { return {x: j, y: i, z: 0}; });
+            });
+
+            //next, the matrix data needs to be filled and updated with dependencies (z)
+            for (var i = 0; i < numrows; i++) { //iterates through each unique node
+              for (var j = 0; j < links.length; j++) { //iterates through each set of dependencies
+                var temp1 = nodes2[i], temp2,temp3;
+                matrix[i][i].z=-1; //a file cant depend on itself, represented as -1 for another color
+                try{
+                  //2 options, if the node is a folder or file
+                  if (temp1.slice(-1)=="\\"){ //aka if the node selected is a folder, not file
+                    temp2=temp1.split(/[\\]/);
+                    temp3 = temp2[7];
+                    temp2=links[j].source;
+                    try{
+                      if (temp2.includes("src\\"+temp3)){ //if the dependency includes the folder selected
+                        var l = links[j].target;
+                        var k = nodes2.indexOf(l); //to find the position to put the value into
+                        try{
+                          matrix[k][i].z=matrix[k][i].z+1;}
+                          catch(TypeError){
+                            name=false};
+                          };
+                        }catch(TypeError){name=false}}}catch(TypeError){name=false};
+
+                      if (links[j].source == temp1){ //if the source file is equal to the node selected
+                        var l = links[j].target;
+                        var y=0;
+                        if (nodes2.indexOf(l)==-1){ //if the target is not in the node list
+                          var o = l.split(/[\\]/);
+                          var p = o[7];
+                          for (var t =0; t<numrows;t++){
+                            if (nodes2[t].includes(p)){ //checks each node for the folder selected (will be there)
+                              y = t; //when it's there, record the position so the dependency can be added to the right spot
+                            }
+                          }
+                        }
+                        var k = nodes2.indexOf(l);
+                        if (y!=0){k=y};
+                        try{
+                          matrix[k][i].z=matrix[k][i].z+1;}
+                          catch(TypeError){
+                            name=false;
+                          };
+                        };//}
+                      };
+                    };
+
+                  //this next section creates a new array, nodes, to rebuild the directory with \ instead of . (concerning the subfolders because the first part was taken care of before)
+                  var k=0;
+                  nodes.forEach(function(d,i){
+                    var r = d.split(".");
+                    var e;
+                    for (var i=0;i<r.length;i++){
+                      if(i==0){e=r[0]}
+                      else if(i==r.length-1){e =e +"."+r[i]}
+                      else{e =e +"\\"+r[i]}
+                    }
+                    nodes[k]=e;
+                    k=k+1;
+                  });
+                  var k=0;
+                  for(var i=0;i<nodes.length;i++){
+                    if(nodes2.indexOf(nodes[i])!=-1){
+                      nodes[k] = nodes[i];
+                      k=k+1;
+                    }
+                  }
+
+                  //below is d3 visualization stuff
+
+                      var x = d3.scale.ordinal()
+                      .domain(d3.range(numcols))
+                      .rangeBands([0, width]);
+
+                      var y = d3.scale.ordinal()
+                      .domain(d3.range(numrows))
+                      .rangeBands([0, height]);
+
+                      var rowLabels = new Array(numrows);
+
+                      for (var i = 0; i < numrows; i++) {
+                        rowLabels[i] = n;
+                        n=n+1;
+                      }
+
+                      var columnLabels = new Array(numrows);
+                      var columnLabels1 = new Array(numrows);
+                      for (var i = 0; i < numcols; i++) {
+                        str = nodes2[i];
+                        str = str.replace(loc1start,"");
+                        columnLabels[i] = (i) + "  " +str;
+                        columnLabels1[i] = str  + " "+ (i);
+                      }
+
+                      var test=[],test1=[]; //these are the orders for the reorganization of the DSM
+                      if (nodes2.length>nodes.length){
+                        for(var i=0;i<nodes2.length;i++){
+                          if(nodes.indexOf(nodes2[i])==-1){
+                            nodes.push(nodes2[i])
+                          }
+                        }
+                      }
+                      // for(var i=0;i<nodes2.length;i++){
+                      //   test[i]=i; //the starting order for the files is the order its in
+                      //   test1[i]=nodes2.indexOf(nodes[i]); //the changed order is the order of the files in the Lattix program
+                      // }
+                      for(var i=0;i<nodes2.length;i++){
+                        test[i]=i; //the starting order for the files is the order its in
+                      }
+                      temp=0
+                      for (var i=0;i<folders.length;i++){
+                        if(folders[i]==temp){
+                          test1.push(folders[i])
+                        }
+                        temp+=1
+                      }
+                      for (var i=0;i<final.length;i++){
+                        listtemp = final[i]
+                        for (var j=0;j<final[i].length;j++){
+                          test1.push(listtemp[j])
+                        }
+                      }
+                      for (var i=folders.length-temp;i<folders.length;i++){
+                          test1.push(folders[i])
+                      }
+
+                      //this part is to shade the files in the folder differently so they stand out
+                      temp=0
+                      for (var i=0; i<folders.length;i++){
+                        if(folders[i]!=temp && lightershade.length==0){
+                          if(i==0){
+                            lightershade.push(0)
+                          } else{
+                          lightershade.push(folders[i-1]+1)
+                        }
+                        lightershade.push(folders[i])
+                      }
+                      temp+=1
+                      }
+
+                      var orders = {
+                        name: test,
+                        group: test1,
+                      };
+
+                      x.domain(orders.name);
+
+                      svg.append("rect")
+                      .attr("class", "background")
+                      .attr("width", width)
+                      .attr("height", height);
+
+                      //lightershade is the box added where the files are located to try to show hierarchy. This is bugged, sometimes there are duplicated files and this is thrown off by 1 or 2
+                      //the next 2 elements added are the 2 background squares
+                      var m = lightershade[0];
+                      var n = lightershade[lightershade.length-1]
+                      var rect1 = svg.append('rect')
+                      .attr("width", width)
+                      .attr("height", height)
+                      .attr('fill','#e6e6e6');
+                      var rect2 = svg.append('rect')
+                      .attr('x',m*(width/test.length))
+                      .attr('y',m*(width/test.length))
+                      .attr("width", (n-m)*(width/test.length))
+                      .attr("height", (n-m)*(width/test.length))
+                      .attr('fill','white');
+
+                      var row = svg.selectAll(".row")
+                      .data(matrix)
+                      .enter().append("g")
+                      .attr("class", "row")
+                      .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+                      .each(row);
+
+                      row.append("line")
+                      .attr("x2", width);
+
+                      row.append("text")
+                      .attr("x", -6)
+                      .attr("y", x.rangeBand() / 2)
+                      .attr("dy", ".32em")
+                      .attr("text-anchor", "end")
+                      .attr("class","text")
+                      .text(function(d, i) { return columnLabels1[i]});
+
+                      var column = svg.selectAll(".column")
+                      .data(matrix)
+                      .enter().append("g")
+                      .attr("class", "column")
+                      .attr("transform", function(d, i) { return "translate(" + y(i) + ")rotate(-90)"; });
+
+                      column.append("line")
+                      .attr("x1", -width);
+
+                      column.append("text")
+                      .attr("x", 6)
+                      .attr("y", x.rangeBand() / 2)
+                      .attr("dy", ".32em")
+                      .attr("text-anchor", "start")
+                      .attr("class","text")
+                      .text(function(d, i) { return columnLabels[i] });
+
+                      function row(row) {
+                        var cell = d3.select(this).selectAll(".cell")
+                        .data(row.filter(function(d) {return d.z}))
+                        .enter().append("rect")
+                        .attr("class", "cell")
+                        .attr("x", function(d) {return x(d.x); })
+                        .attr("width", x.rangeBand())
+                        .attr("height", x.rangeBand())
+                        .style("fill", function(d){return colorMap(d.z)}) //for the shading of the boxes
+                        .on("mouseover", mouseover)
+                        .on("mouseout", mouseout);
+                      }
+
+                      //this function controls the tooltips and the shading for when a box is moused over
+                      function mouseover(p) {
+                        d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
+                        d3.selectAll(".column text").classed("active", function(d, i) { return i == p.x; });
+                        var temp1 = Math.round(this.x.animVal.value/this.width.animVal.value);
+                        var temp2 =(Math.round((d3.event.pageY-margin.top)/this.width.animVal.value))-1;
+                        selected = nodes[temp1];
+                        selectedY = nodes[temp2];
+                        if (temp2>temp1){
+                          printfun();
+                        } else {
+                          print1fun();
+                        }
+                        tooltip.transition().style("opacity",1);
+                        tooltip.html(p.z).style("left",(d3.event.pageX)+"px")
+                        .style("top",(d3.event.pageY+"px"));
+                        d3.select(this).style("opacity",0.5);
+                      }
+
+                      //handles the mouseout from the boxes
+                      function mouseout() {
+                        d3.selectAll("text").classed("active", false);
+                        d3.select(this).style("opacity",1);
+                      }
+
+                      //when the order dropdown is changed, this is called to reorder the boxes. the initial order call is above at the beginning of d3 section
+                      d3.select("#order").on("change", function() {
+                        clearTimeout(timeout);
+                        order(this.value);
+                      });
+
+                      //the order method that is called that orders the files and animates them with delays
+                      function order(value) {
+                        x.domain(orders[value]);
+
+                        var t = svg.transition().duration(2500);
+
+                        t.selectAll(".row")
+                        .delay(function(d, i) { return x(i) * 4; })
+                        .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
+                        .selectAll(".cell")
+                        .delay(function(d) { return x(d.x) * 4; })
+                        .attr("x", function(d) { return x(d.x); });
+
+                        t.selectAll(".column")
+                        .delay(function(d, i) { return x(i) * 4; })
+                        .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
+                        t.selectAll(".rect")
+                        .delay(function(d, i) { return x(i) * 4; })
+                        .attr("stroke-opacity", 1);
+                      }
+
+                      //the timeout is set to 2 seconds after which the animation will automatically reorder
+                      var timeout = setTimeout(function() {
+                        order("group");
+                        d3.select("#order").property("selectedIndex", 2).node().focus();
+                      }, 2000);
+
+                      var testdata=[]
+                      //new and improved for understand only
+                      for (var i=0;i<final.length;i++){
+                        temp = final[i]
+                        testdata.push(test1.indexOf(temp[0]))
+                        testdata.push(test1.indexOf(temp[temp.length-1]))
+                      }
+                      console.log(testdata)
+
+
+//below is for lattix input
+                      // //the next section handles the partitions, which is bugged
+                      // //essentially, this section should use the Lattix CSV. when there is a seprate subfolder list of partitions in the CSV, this usually represents a virtual partition
+                      // //and the virtual partition is where the components would be
+                      // //so this part works as follows: first find the first c ext file (.c, .h, etc) and record the location into the list
+                      // //then, find the next subfolder location, and record the c file that is one in front of this folder to get the whole partiiton.
+                      // //later, this will be called as a set of 2 elements to represent the first and last are of the partition
+                      // //one reason this is bugged is because the folder iwll be at the beginning and won't show where the folder ends esp if it is the last folders
+                      // // another big problem is that the DSM is created with the understand dependencies, so if a class has no dependencies, it is not included in the list.
+                      // // therefore, if a class is not in the original list, it returns a -1 for the index which messes up the partiiton squares
+                      // // a solution to this would be to query all of the classes form both inputs and make sure that all the classes from lattix are in understand
+                      // testdata=[]
+                      // var changed = true
+                      // var n=-1;
+                      // links1.forEach(function(link){
+                      //   n+=1
+                      //   var d = link.order.split('.')
+                      //   try{
+                      //     if(link.order.indexOf(loc2start+diffnames[folder-1]+".") ==0 ){ //if the file is in the folder selected
+                      //       if(cext.indexOf(d[d.length-1])!=-1){ //if the file is a c file
+                      //         var m = link.order.replace(loc2start,loc1start)
+                      //         var k = m.split('.')
+                      //         var constructors=''
+                      //         for(var i=0;i<k.length;i++){ //rebuild the file from . to \
+                      //           if (i==k.length-2){
+                      //             constructors=constructors+k[i]+'.'+k[i+1]
+                      //           } else if(i<k.length-2){
+                      //             constructors=constructors+k[i]+'\\'}
+                      //           }
+                      //           var index = 1;
+                      //           while (test1.indexOf(nodes2.indexOf(constructors)) == -1){
+                      //             var m = links1[n+idnex].order.replace(loc2start,loc1start)
+                      //             var k = m.split('.')
+                      //             var constructors=''
+                      //             for(var i=0;i<k.length;i++){
+                      //               if (i==k.length-2){
+                      //                 constructors=constructors+k[i]+'.'+k[i+1]
+                      //               } else if(i<k.length-2){
+                      //                 constructors=constructors+k[i]+'\\'}
+                      //               }
+                      //               index+=1
+                      //           }
+                      //           if(changed==true && constructors != null){ //if constructors != undefined and changed = tru (to find the first partition loc)
+                      //             console.log(constructors)
+                      //             testdata.push(test1.indexOf(nodes2.indexOf(constructors)))
+                      //             changed=false //this variable is set to keep track of which side of the partition has to be calculated, bakc or front
+                      //           }
+                      //         } else if (cext.indexOf(d[d.length-1])==-1){ //if the file is a subfolder and not a c file to find the end
+                      //           if (changed==false  && link.order !=null){ //to make sure there has already been a starting point to the partition
+                      //             var m = links1[n-1].order.replace(loc2start,loc1start)
+                      //             var k = m.split('.')
+                      //             var constructors=''
+                      //             for(var i=0;i<k.length;i++){
+                      //               if (i==k.length-2){
+                      //                 constructors=constructors+k[i]+'.'+k[i+1]
+                      //               } else if(i<k.length-2){
+                      //                 constructors=constructors+k[i]+'\\'}
+                      //               }
+                      //             console.log(constructors)
+                      //             index=1
+                      //             while (test1.indexOf(nodes2.indexOf(constructors)) == -1){ //if the file selected is not in the understand list
+                      //               var m = links1[n-index+1].order.replace(loc2start,loc1start) //choose the next last file
+                      //               var k = m.split('.')
+                      //               var constructors=''
+                      //               for(var i=0;i<k.length;i++){
+                      //                 if (i==k.length-2){
+                      //                   constructors=constructors+k[i]+'.'+k[i+1]
+                      //                 } else if(i<k.length-2){
+                      //                   constructors=constructors+k[i]+'\\'}
+                      //                 }
+                      //                 index+=1
+                      //             }
+                      //             testdata.push(test1.indexOf(nodes2.indexOf(constructors)))
+                      //             changed=true
+                      //           }
+                      //         }  // \/if the file before is in the right folder and the file selected is in a different folder \/ this is primarily for the last class
+                      //       }else if(links1[n-1].order.indexOf(loc2start+diffnames[folder-1]+".") ==0 && link.order.indexOf(loc2start+diffnames[folder-1]+".") !=0){
+                      //         var m = links1[n-1].order.replace(loc2start,loc1start)
+                      //         var k = m.split('.')
+                      //         var constructors=''
+                      //         for(var i=0;i<k.length;i++){
+                      //           if (i==k.length-2){
+                      //             constructors=constructors+k[i]+'.'+k[i+1]
+                      //           } else if(i<k.length-2){
+                      //             constructors=constructors+k[i]+'\\'}
+                      //           }
+                      //           index=1
+                      //           while (test1.indexOf(nodes2.indexOf(constructors)) == -1){ //these are necessary in order to make sure that the file is in the understand set so no -1 is returned
+                      //             var m = links1[n-index-1].order.replace(loc2start,loc1start)
+                      //             var k = m.split('.')
+                      //             var constructors=''
+                      //             for(var i=0;i<k.length;i++){
+                      //               if (i==k.length-2){
+                      //                 constructors=constructors+k[i]+'.'+k[i+1]
+                      //               } else if(i<k.length-2){
+                      //                 constructors=constructors+k[i]+'\\'}
+                      //               }
+                      //               index+=1
+                      //           }
+                      //           console.log(constructors)
+                      //           testdata.push(test1.indexOf(nodes2.indexOf(constructors)))
+                      //         }}catch (TypeError){name=false}});
+                      //         testdata.sort(function(a, b){return a - b}) //reorder
+                      //         console.log(testdata)
+
+                              //draws the partitions
+                              for(var i=0; i<testdata.length;i++){
+                                var m = testdata[i]
+                                var n=testdata[i+1]
+                                i+=1
+                                if(n==undefined){
+                                  n=nodes2.length-diffnames.length+1
+                                }
+                                var rectt = svg.append('rect')
+                                .attr('x',m*(width/test.length))
+                                .attr('y',m*(width/test.length))
+                                .attr("width", (n-m+1)*(width/test.length))
+                                .attr("height", (n-m+1)*(width/test.length))
+                                .attr('stroke','red')
+                                .attr('stroke-opacity',0)
+                                .attr('fill','none')
+                                .attr('class','rect');
+
+      }
+
+      //this function is to find what to print for the mouseover when the box selected is under the diagonal, it's buggy but not necessary
+      function print1fun(){
+        var q =0, values=[];
+        for (var j = 0; j < links.length; j++) {
+          if(selected.slice(-1)=="\\"){
+            temp2=selected.split(/[\\]/);
+            temp3 = temp2[7];
+            if(links[j].source.includes("src\\"+temp3)){
+              if (links[j].target ==selected){
+                values[q]=links[j].source;
+                q=q+1;
+              }
+            }
+          }
+          else{
+            values[0]=selected
+          }
+        }
+        selectedY = selectedY.replace(loc1start,"")
+        for (var i=0; i<values.length;i++){
+          values[i] = values[i].replace(loc1start,"");
+        }
+        document.getElementById("here").innerHTML = (values + " depends on "+selectedY);
+      }
+
+      //this function is to find what to print for the mouseover when the box selected is above the diagonal, it's buggy but not necessary
+      function printfun(){
+        var q =0, values=[];
+        for (var j = 0; j < links.length; j++) {
+          try{
+            if (selectedY.slice(-1)=="\\"){
+              temp2=selectedY.split(/[\\]/);
+              temp3 = temp2[7];
+              temp2=links[j].target;
+              if (temp2.includes("src\\"+temp3)&&selected==links[j].source){
+                var l = links[j].target;
+                values[q]=l;
+                q=q+1;
+              }}
+              else{values[0]=selectedY}}catch(TypeError){name=false;}}
+              try{
+                selected = selected.replace(loc1start,"")
+                for (var i=0; i<values.length;i++){
+                  values[i] = values[i].replace(loc1start,"");
+                }
+                document.getElementById("here").innerHTML = (selected + " depends on "+values);}catch(ReferenceError){name=false}
+              }
+
+        }})//;});//});
+        </script>
+        <div class = "fixed">
+          <p id="here"></p>
+        </div>
+
+      </body>
+      </html>
