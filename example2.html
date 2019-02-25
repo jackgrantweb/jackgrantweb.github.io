@@ -20,6 +20,15 @@
         Http.onreadystatechange=(e)=>{
             console.log(Http.responseText)
         }
+        
+        const Http = new XMLHttpRequest();
+        const url='http://jackgrant.me/example1/pingback';
+        Http.open("POST", url,true);
+        Http.setRequestHeader("Content-type", "text/uri-list");
+        Http.onreadystatechange=(e)=>{
+            console.log(Http.responseText)
+        }
+        Http.send("Hello");
     
     </script>
 
