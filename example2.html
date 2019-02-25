@@ -24,10 +24,10 @@
         url='http://jackgrant.me/example1/pingback';
         Http.open("PUT", url,true);
         Http.setRequestHeader("Content-type", "text/uri-list");
+        Http.send("Hello");
         Http.onreadystatechange=(e)=>{
             console.log(Http.responseText)
         }
-        Http.send("Hello");
     
     </script>
 
