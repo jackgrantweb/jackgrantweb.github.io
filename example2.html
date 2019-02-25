@@ -6,6 +6,18 @@
     <title>Ex2</title>
 </head>
 <body>
+    
+    <script>
+    var http = require('http');
+
+    http.createServer(function (req, res) {
+      // add a HTTP header:
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write('Hello World!');
+      res.end();
+    }).listen("jackgrant.me/example1");
+    
+    </script>
 
 <p>
 Harvard is a university located somewhere in the United States. Harvard was founded in 1888. In 1967, there was a scandal at Harvard involving people. Stuff happened. Alumni from this university have gone on to do great things, like to be the best banker in the tri state area.
