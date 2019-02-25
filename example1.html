@@ -9,6 +9,18 @@
 </head>
 <body>
 
+    
+    <script>
+        
+        const Http = new XMLHttpRequest();
+        const url='http://jackgrant.me/example2';
+        Http.open("GET", url);
+        Http.send();
+        Http.onreadystatechange=(e)=>{
+            console.log(Http.responseText)
+        }
+    
+    </script>
 
 <p>
 The all right keep your secrets meme originated from Lord of the Rings.
