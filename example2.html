@@ -22,12 +22,15 @@
         }
         
         url='http://jackgrant.me/example1/pingback';
-        Http.open("PUT", url,true);
-        Http.setRequestHeader("Content-type", "text/uri-list");
-        Http.send("Hello");
-        Http.onreadystatechange=(e)=>{
-            console.log(Http.responseText)
+        Http.open("POST", '/server', true);
+        Http.setRequestHeader("Content-Type", "text/html");
+
+        Http.onreadystatechange = function() { 
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                console.log("it worked");
+            }
         }
+        Http.send("foo=bar&lorem=ipsum");
     
     </script>
 
