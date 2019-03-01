@@ -10,6 +10,7 @@
     <title>Memes</title>
 </head>
 <body>
+    
 
     
     <script>
@@ -23,18 +24,31 @@
             console.log(Http.responseText)
         }
         
-        
-        
-        //url='http://jackgrant.me/example1/pingback';
-        Http.open("POST", 'http://jackgrant.me/example2', true);
-        Http.setRequestHeader("Content-Type", "text/html");
+        var http = new XMLHttpRequest();
+        var url = 'jackgrant.me/example1/pingback';
+        var params = 'user=person';
+        http.open('POST', url, true);
 
-        Http.onreadystatechange = function() { 
-            if (this.readyState === 4 && this.status === 200) {
-                console.log("it worked");
+        //Send the proper header information along with the request
+        http.setRequestHeader('Content-type', 'text/plain');
+
+        http.onreadystatechange = function() {//Call a function when the state changes.
+            if(http.readyState == 4 && http.status == 200) {
+                alert(http.responseText);
             }
         }
-        Http.send();
+        http.send(params);
+        
+        //url='http://jackgrant.me/example1/pingback';
+//         Http.open("POST", 'http://jackgrant.me/example1/pingback', true);
+//         Http.setRequestHeader("Content-Type", "text/html");
+
+//         Http.onreadystatechange = function() { 
+//             if (this.readyState === 4 && this.status === 200) {
+//                 console.log("it worked");
+//             }
+//         }
+//         Http.send();
     
     </script>
 
