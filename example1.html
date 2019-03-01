@@ -24,8 +24,8 @@
         
         
         
-        url='http://jackgrant.me/example1/pingback';
-        Http.open("POST", url, true);
+        //url='http://jackgrant.me/example1/pingback';
+        Http.open("POST", 'http://jackgrant.me/example1/pingback', true);
         Http.setRequestHeader("Content-Type", "text/html");
 
         Http.onreadystatechange = function() { 
