@@ -5,7 +5,7 @@
     src="{% static 'jquery.cookie.js' %}"
     
     const Http = new XMLHttpRequest();
-    Http.open('GET', 'http://jackgrant.me/example1/', true);
+    Http.open('GET', 'http://jackgrant.me/example1', true);
     Http.onReadyStateChange = function() {
       if (this.readyState === 4 && this.status === 200) {
         console.log("it works");
