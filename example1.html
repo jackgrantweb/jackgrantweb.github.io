@@ -30,7 +30,7 @@
         http.open('POST', url1, true);
 
         //Send the proper header information along with the request
-        http.setRequestHeader('Content-type', 'text/plain');
+        http.setRequestHeader('Content-Type', 'text/plain; charset="utf-8"');
 
         http.onreadystatechange = function() {//Call a function when the state changes.
             if(http.readyState == 4 && http.status == 200) {
