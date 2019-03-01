@@ -43,7 +43,8 @@
 //         //http.send(params);
         
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://jackgrant.me/example1/pingback1', true);
+        xhr.open("POST", 'http://jackgrant.me/example1/pingback', true);
+        xhr.withCredentials=true;
         xhr.setRequestHeader('Content-type','text/plain; charset=utf-8');
         xhr.onload = function () {
             var users = "test1";
@@ -54,6 +55,7 @@
             }
         }
         xhr.send("test2");
+        console.log(xhr.status);
         
         function loadDoc() {
           var xhttp = new XMLHttpRequest();
