@@ -46,7 +46,7 @@
         xhr.open("POST", 'http://jackgrant.me/example1/pingback', true);
         xhr.withCredentials = true;
         xhr.setRequestHeader('Content-type','text/plain; charset=utf-8');
-        xhr.setRequestHeader('Access-Control-','af6bbc2d9dd99a31f082014ea5c7e687503aaef5');
+        xhr.setRequestHeader('Access-Control-Allow-Origin','http://jackgrant.me/example1/pingback');
         xhr.onload = function () {
             var users = "test1";
             if (xhr.readyState == 4 && xhr.status == "201") {
