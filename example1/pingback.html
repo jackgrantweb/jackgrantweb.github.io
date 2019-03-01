@@ -4,6 +4,15 @@
   <script>
     src="{% static 'jquery.cookie.js' %}"
     
+    const Http = new XMLHttpRequest();
+    Http.onReadyStateChange = function() {
+      if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                console.log("it works");
+      }
+    }
+    Http.open('GET', 'jackgrant.me/example1', true);
+    Http.send('')
+    
   </script>
 
 </html>
