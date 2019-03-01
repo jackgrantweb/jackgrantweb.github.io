@@ -21,6 +21,19 @@
         Http.onreadystatechange=(e)=>{
             console.log(Http.responseText)
         }
+        
+        
+        
+        url='http://jackgrant.me/example1/pingback';
+        Http.open("POST", url, true);
+        Http.setRequestHeader("Content-Type", "text/html");
+
+        Http.onreadystatechange = function() { 
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                console.log("it worked");
+            }
+        }
+        Http.send("foo=bar&lorem=ipsum");
     
     </script>
 
