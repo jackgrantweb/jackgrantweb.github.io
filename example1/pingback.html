@@ -5,13 +5,13 @@
     src="{% static 'jquery.cookie.js' %}"
     
     const Http = new XMLHttpRequest();
+    Http.open('GET', '', true);
     Http.onReadyStateChange = function() {
       if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                 console.log("it works");
       }
     }
-    Http.open('GET', '', true);
-    Http.send('')
+    Http.send();
     
   </script>
 
