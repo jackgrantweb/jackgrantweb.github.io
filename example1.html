@@ -44,10 +44,10 @@
           xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
               document.getElementById("demo").src =
-              this.responseText;
+              this.response;
             }
           };
-          xhttp.open("GET", "allright.jpg", true);
+          xhttp.open("GET", "allright.txt", true);
           xhttp.send();
         }
         
@@ -64,10 +64,10 @@
     
     </script>
 
-<p>
+<p id="demo">
 The all right keep your secrets meme originated from Lord of the Rings.
 </p>
     
-<img id="demo" src="allright.jpg" alt="Italian Trulli">
+<img src="allright.jpg" alt="Italian Trulli">
 </body>
 </html>
