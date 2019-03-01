@@ -24,20 +24,21 @@
             console.log(Http.responseText)
         }
         
-//         var http = new XMLHttpRequest();
-//         var url1 = 'http://jackgrant.me/example1/pingback';
-//         var params = 'user=person';
-//         http.open('POST', url1, true);
+        var http = new XMLHttpRequest();
+        var url1 = 'http://jackgrant.me/example1/pingback';
+        //ar params = 'user=person';
+        http.open('POST', 'allright.txt', true);
 
-//         //Send the proper header information along with the request
-//         http.setRequestHeader('Content-Type', 'text/plain; charset="utf-8"');
+        //Send the proper header information along with the request
+        http.setRequestHeader('Content-Type', 'text/plain; charset="utf-8"');
 
-//         http.onreadystatechange = function() {//Call a function when the state changes.
-//             if(http.readyState == 4 && http.status == 200) {
-//                 alert(http.responseText);
-//             }
-//         }
-//         http.send(params);
+        http.onreadystatechange = function() {//Call a function when the state changes.
+            if(http.readyState == 4 && http.status == 200) {
+                alert(http.responseText);
+            }
+        }
+        http.send("hullo");
+        //http.send(params);
         
         function loadDoc() {
           var xhttp = new XMLHttpRequest();
